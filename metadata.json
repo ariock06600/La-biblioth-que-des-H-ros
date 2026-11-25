@@ -1,0 +1,6 @@
+{
+  "name": "La Bibliothèque des Héros — LDVELH Éducatifs",
+  "description": "Bibliothèque interactive de Livres Dont Vous Êtes le Héros (CE2 à 3ème) pour sensibiliser à l'empathie, l'inclusion et le vivre-ensemble, avec « L'Ombre de la Cour » (CM1, 150 paragraphes) et importateur universel de documents.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
