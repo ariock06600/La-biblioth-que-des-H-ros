@@ -9,15 +9,6 @@ type SectionFilter = 'all' | 'primaire' | 'college';
 
 const STORAGE_PROGRESS = 'ldvelh_reading_progress_v1';
 
-const SPOTLIGHT_DESCRIPTIONS: Record<string, string> = {
-  'cm1-ombre-de-la-cour':
-    'Face au « jeu du fantôme » dans la cour de l’école du Marronnier, chaque décision compte pour Samy.',
-  'cm1-la-rumeur-qui-court':
-    'Un lundi matin à l’école des Tilleuls, une rumeur de vol vise Noé. Vas-tu l’amplifier ou vérifier les faits ?',
-  '4eme-le-groupe-prive':
-    'Un dimanche soir en 4ème B, un montage photo visant Chloé circule dans un groupe privé. Comment réagis-tu ?',
-};
-
 function loadStoredProgress(): Record<string, number> {
   try {
     const raw = window.localStorage.getItem(STORAGE_PROGRESS);
@@ -154,9 +145,9 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main id="bibliotheque" className="flex-1 max-w-[1280px] w-full mx-auto px-5 sm:px-8 py-8 sm:py-11">
-        {/* Warm CDI Welcome & Playable Books Spotlight */}
-        <section className="space-y-7 pb-10 border-b border-[#E3DAC8]">
+      <main id="bibliotheque" className="flex-1 max-w-[1280px] w-full mx-auto px-5 sm:px-8 py-8 sm:py-10">
+        {/* Warm CDI Welcome Header (books are browsed directly on the wooden shelves below) */}
+        <section className="pb-7 border-b border-[#E3DAC8]">
           <div className="max-w-3xl space-y-3">
             <p className="text-sm font-semibold text-[#1E5647]">
               Bibliothèque interactive EMC & pHARe · Du CE2 à la 3ème
@@ -170,57 +161,13 @@ export default function App() {
               classe.
             </p>
           </div>
-
-          {/* All Playable Books Spotlight Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
-            {INITIAL_BOOKS.map((book) => {
-              const currentPara = savedProgress[book.id];
-              const hasSavedRun = typeof currentPara === 'number' && currentPara > 1;
-              return (
-                <div
-                  key={book.id}
-                  className="rounded-2xl p-5 sm:p-6 text-[#FAF8F2] shadow-[0_16px_34px_-14px_rgba(30,40,56,0.34)] flex flex-col justify-between"
-                  style={{
-                    background: `linear-gradient(145deg, ${book.coverTheme.secondary} 0%, ${book.coverTheme.primary} 100%)`,
-                  }}
-                >
-                  <div>
-                    <div className="flex items-center justify-between text-xs font-semibold text-white/80">
-                      <span>Étagère {book.grade}</span>
-                      <span className="tabular-nums">{book.totalParagraphs} §</span>
-                    </div>
-
-                    <h2 className="mt-2.5 font-display text-xl sm:text-2xl font-bold text-white leading-snug">
-                      {book.title}
-                    </h2>
-                    <p className="mt-2 text-xs sm:text-sm text-white/85 leading-relaxed">
-                      {SPOTLIGHT_DESCRIPTIONS[book.id] || book.introduction[0]}
-                    </p>
-                  </div>
-
-                  <div className="mt-5 pt-3.5 border-t border-white/15 flex items-center justify-between gap-2">
-                    <span className="text-[11px] text-[#FBE6B5] font-medium truncate">
-                      {book.theme}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenBook(book)}
-                      className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#F4EFE4] text-[#1E2524] hover:bg-white transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-                    >
-                      {hasSavedRun ? `Reprendre (§ ${currentPara})` : 'Ouvrir'}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
         </section>
 
         {/* Quick Section Filter Bar */}
         <section
           id="etageres"
           aria-label="Filtrer par cycle scolaire"
-          className="py-7 flex flex-wrap items-center justify-between gap-4 scroll-mt-20"
+          className="py-6 flex flex-wrap items-center justify-between gap-4 scroll-mt-20"
         >
           <div className="inline-flex items-center p-1 rounded-xl bg-[#EAE4D7] border border-[#DDD4C2]">
             {(

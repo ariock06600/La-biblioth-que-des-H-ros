@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { analyzeParagraphScene } from './sceneAnalyzer';
 import { cm1OmbreDeLaCour } from '../data/cm1_ombre_de_la_cour';
 import { cm1LaRumeurQuiCourt } from '../data/cm1_la_rumeur_qui_court';
+import { cm1LeMysterieuxCasier } from '../data/cm1_le_mysterieux_casier';
 import { quatriemeGroupePrive } from '../data/quatrieme_groupe_prive';
 
 test('analyzeParagraphScene maps key CM1 story scenes accurately', () => {
@@ -60,6 +61,24 @@ test('analyzeParagraphScene maps key CM1 La rumeur qui court scenes accurately',
   assert.equal(p147.endingTone, 'positive');
   assert.equal(p147.mood, 'festive');
   assert.equal(p147.location, 'atelier_maquette');
+});
+
+test('analyzeParagraphScene maps key CM1 Le mystérieux casier scenes accurately', () => {
+  const p1 = analyzeParagraphScene(cm1LeMysterieuxCasier.paragraphs[1]);
+  assert.equal(p1.location, 'couloir_portemanteaux');
+  assert.equal(p1.prop, 'mot_plie');
+  assert.ok(p1.characters.includes('ines'));
+  assert.ok(p1.characters.includes('leo'));
+
+  const p9 = analyzeParagraphScene(cm1LeMysterieuxCasier.paragraphs[9]);
+  assert.ok(p9.characters.includes('mme_girault'));
+  assert.ok(p9.characters.includes('ines'));
+
+  const p146 = analyzeParagraphScene(cm1LeMysterieuxCasier.paragraphs[146]);
+  assert.equal(p146.endingTone, 'positive');
+  assert.equal(p146.mood, 'festive');
+  assert.ok(p146.characters.includes('maxime'));
+  assert.ok(p146.characters.includes('mme_girault'));
 });
 
 test('analyzeParagraphScene maps key 4ème Le Groupe Privé scenes accurately', () => {

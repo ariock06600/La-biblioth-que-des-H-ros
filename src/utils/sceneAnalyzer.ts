@@ -57,6 +57,9 @@ export type SceneCharacter =
   | 'lucas'
   | 'leo'
   | 'm_moreau'
+  | 'ines'
+  | 'maxime'
+  | 'mme_girault'
   | 'amis'
   | 'parents';
 
@@ -183,8 +186,13 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   if (paragraph.isEnding && paragraph.ending) {
     const isCollegeStory = /chloé|enzo|collège|mme\s+bernard|mme\s+laurent|groupe\s+privé/.test(bodyLow);
     const isRumeurStory = /noé|tilleuls|m\.\s+moreau|3\s+filtres|journal\s+anti-rumeur/.test(bodyLow);
+    const isCasierStory = /inès|érables|mme\s+girault|casier/.test(bodyLow);
     if (paragraph.ending.tone === 'negative') {
-      location = /classe|salle/.test(bodyLow) ? 'classe' : 'cour_recreation';
+      location = isCasierStory
+        ? 'couloir_portemanteaux'
+        : /classe|salle/.test(bodyLow)
+          ? 'classe'
+          : 'cour_recreation';
     } else if (paragraph.ending.tone === 'positive') {
       if (isCollegeStory) {
         location = /phare|charte|conseil|classe|collège/.test(bodyLow)
@@ -194,6 +202,12 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
         location = /journal|affiche|3\s+filtres|charte/.test(bodyLow)
           ? 'atelier_maquette'
           : 'cour_recreation';
+      } else if (isCasierStory) {
+        location = /club\s+de\s+dessin|atelier|dessin/.test(bodyLow)
+          ? 'atelier_maquette'
+          : /casier|couloir/.test(bodyLow)
+            ? 'couloir_portemanteaux'
+            : 'cour_recreation';
       } else {
         location = /classe|diplôme|fête|marronnier/.test(bodyLow)
           ? 'fete_ecole'
@@ -265,7 +279,10 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   if (/lucas/.test(bodyLow)) characters.push('lucas');
   if (/léo/.test(bodyLow)) characters.push('leo');
   if (/m\.\s+moreau|le\s+maître/.test(bodyLow)) characters.push('m_moreau');
-  if (/thomas|yasmine|tom\b|antoine|maxime|camarades|amis|équipe|classe|élèves|délégué/.test(bodyLow)) {
+  if (/inès/.test(bodyLow)) characters.push('ines');
+  if (/maxime/.test(bodyLow)) characters.push('maxime');
+  if (/mme\s+girault|la\s+maîtresse|l['’]enseignante/.test(bodyLow)) characters.push('mme_girault');
+  if (/thomas|yasmine|tom\b|antoine|jules|paul|camarades|amis|équipe|classe|élèves|délégué/.test(bodyLow)) {
     characters.push('amis');
   }
   if (/maman|père|parents|famille/.test(bodyLow)) characters.push('parents');
@@ -278,7 +295,7 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   else if (/carte\s+d['’]orientation|balise|orientation/.test(bodyLow)) prop = 'carte_orientation';
   else if (/cartes?\s+(?:de\s+collection|super\s+rares|rares|ultra-rare|brillante|volées)|piqué\s+trois\s+cartes/.test(bodyLow)) {
     prop = 'cartes';
-  } else if (/petit\s+mot\s+plié|mot\s+plié|papier\s+plié|fais\s+passer|petit\s+papier/.test(bodyLow)) {
+  } else if (/petit\s+mot\s+plié|mot\s+plié|papier\s+plié|fais\s+passer|petit\s+papier|billet\s+doux|billets?\s+anonymes?|billets?\s+moqueurs?|encre\s+violette|mot\s+violet/.test(bodyLow)) {
     prop = 'mot_plie';
   } else if (/journal\s+de\s+classe|journal\s+anti-rumeur|charte\s+du\s+bon\s+camarade|3\s+filtres|trois\s+filtres/.test(bodyLow)) {
     prop = 'journal_classe';
