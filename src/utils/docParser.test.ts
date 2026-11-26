@@ -4,7 +4,40 @@ import { parseLDVELHDocument, validateBookGraph } from './docParser';
 import { cm1OmbreDeLaCour } from '../data/cm1_ombre_de_la_cour';
 import { cm1LaRumeurQuiCourt } from '../data/cm1_la_rumeur_qui_court';
 import { cm1LeMysterieuxCasier } from '../data/cm1_le_mysterieux_casier';
+import { cm1MissionRecreation } from '../data/cm1_mission_recreation';
 import { quatriemeGroupePrive } from '../data/quatrieme_groupe_prive';
+
+test('cm1MissionRecreation contains all 150 paragraphs, 15 endings, and zero broken links', () => {
+  assert.equal(cm1MissionRecreation.grade, 'CM1');
+  assert.equal(cm1MissionRecreation.section, 'primaire');
+  assert.equal(cm1MissionRecreation.title, 'Mission : récréation');
+  assert.equal(cm1MissionRecreation.totalParagraphs, 150);
+  assert.equal(Object.keys(cm1MissionRecreation.paragraphs).length, 150);
+  assert.equal(cm1MissionRecreation.introduction.length, 4);
+
+  for (let i = 1; i <= 150; i++) {
+    const p = cm1MissionRecreation.paragraphs[i];
+    assert.ok(p, `CM1 Récréation Paragraph ${i} must exist`);
+    assert.ok(p.text.length > 20, `CM1 Récréation Paragraph ${i} must have body text`);
+
+    if (i <= 135) {
+      assert.equal(p.choices.length, 3, `CM1 Récréation Paragraph ${i} must have 3 choices`);
+      assert.ok(!p.isEnding, `CM1 Récréation Paragraph ${i} should not be an ending`);
+    } else {
+      assert.equal(p.isEnding, true, `CM1 Récréation Paragraph ${i} must be an ending`);
+      assert.ok(p.ending, `CM1 Récréation Paragraph ${i} must have ending metadata`);
+      assert.ok(p.ending.pedagogicalMessage.length > 10, `CM1 Récréation Paragraph ${i} must have pedagogical message`);
+      if (i <= 140) assert.equal(p.ending.category, 'A');
+      else if (i <= 145) assert.equal(p.ending.category, 'B');
+      else assert.equal(p.ending.category, 'C');
+    }
+  }
+
+  const report = validateBookGraph(cm1MissionRecreation.paragraphs);
+  assert.equal(report.brokenLinks.length, 0);
+  assert.equal(report.endingCount, 15);
+  assert.equal(cm1MissionRecreation.debateQuestions.length, 4);
+});
 
 test('cm1LeMysterieuxCasier contains all 150 paragraphs, 15 endings, and zero broken links', () => {
   assert.equal(cm1LeMysterieuxCasier.grade, 'CM1');

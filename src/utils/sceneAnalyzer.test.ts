@@ -4,6 +4,7 @@ import { analyzeParagraphScene } from './sceneAnalyzer';
 import { cm1OmbreDeLaCour } from '../data/cm1_ombre_de_la_cour';
 import { cm1LaRumeurQuiCourt } from '../data/cm1_la_rumeur_qui_court';
 import { cm1LeMysterieuxCasier } from '../data/cm1_le_mysterieux_casier';
+import { cm1MissionRecreation } from '../data/cm1_mission_recreation';
 import { quatriemeGroupePrive } from '../data/quatrieme_groupe_prive';
 
 test('analyzeParagraphScene maps key CM1 story scenes accurately', () => {
@@ -79,6 +80,27 @@ test('analyzeParagraphScene maps key CM1 Le mystérieux casier scenes accurately
   assert.equal(p146.mood, 'festive');
   assert.ok(p146.characters.includes('maxime'));
   assert.ok(p146.characters.includes('mme_girault'));
+});
+
+test('analyzeParagraphScene maps key CM1 Mission : récréation scenes accurately', () => {
+  const p1 = analyzeParagraphScene(cm1MissionRecreation.paragraphs[1]);
+  assert.equal(p1.location, 'cour_recreation');
+  assert.equal(p1.prop, 'ballon');
+  assert.ok(p1.characters.includes('hugo'));
+  assert.ok(p1.characters.includes('lina'));
+  assert.ok(p1.characters.includes('sami'));
+  assert.ok(p1.characters.includes('nathan'));
+
+  const p94 = analyzeParagraphScene(cm1MissionRecreation.paragraphs[94]);
+  assert.equal(p94.prop, 'charte_cour');
+  assert.ok(p94.characters.includes('directeur'));
+
+  const p146 = analyzeParagraphScene(cm1MissionRecreation.paragraphs[146]);
+  assert.equal(p146.endingTone, 'positive');
+  assert.equal(p146.mood, 'festive');
+  assert.equal(p146.location, 'cour_recreation');
+  assert.ok(p146.characters.includes('lina'));
+  assert.ok(p146.characters.includes('sami'));
 });
 
 test('analyzeParagraphScene maps key 4ème Le Groupe Privé scenes accurately', () => {

@@ -146,7 +146,7 @@ export function parseLDVELHDocument(
         mode = 'howto';
         continue;
       }
-      if (/^(?:L['’]Histoire|Introduction|Contexte|Le\s+contexte\s*:?)$/i.test(clean)) {
+      if (/^(?:L['’]Histoire|Introduction|Contexte|Le\s+contexte\s*:?|Ton\s+contexte\s*:?)$/i.test(clean)) {
         mode = 'intro';
         continue;
       }
@@ -293,7 +293,7 @@ export function parseLDVELHDocument(
 
       // Check for pedagogical / civic message
       const cleanLine = stripMarkdownBold(rawLine);
-      const pedMatch = cleanLine.match(/^Message\s+(?:pédagogique|civique)\s*[:\-–—]\s*(.+)$/i);
+      const pedMatch = cleanLine.match(/^Message\s+(?:pédagogique|civique|pour\s+toi)\s*[:\-–—]\s*(.+)$/i);
       if (pedMatch) {
         currentPedagogicalMessage = pedMatch[1].trim();
         continue;
@@ -328,7 +328,7 @@ export function parseLDVELHDocument(
   if (debateStartIdx < lines.length) {
     for (let i = debateStartIdx + 1; i < lines.length; i++) {
       const rawLine = lines[i];
-      if (!rawLine || /^---\s*FIN\s+DU\s+LIVRE/i.test(rawLine)) continue;
+      if (!rawLine || /^_{3,}$|^-{3,}$|^---\s*FIN\s+DU\s+LIVRE/i.test(rawLine)) continue;
       const cleaned = stripMarkdownBold(rawLine)
         .replace(/^[\*\-•–—]\s*/, '')
         .replace(/^\d+[\.\)]\s*/, '')

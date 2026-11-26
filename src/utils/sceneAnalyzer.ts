@@ -36,6 +36,7 @@ export type SceneProp =
   | 'smartphone'
   | 'ordinateur'
   | 'charte_phare'
+  | 'charte_cour'
   | 'cartes'
   | 'mot_plie'
   | 'journal_classe'
@@ -60,6 +61,9 @@ export type SceneCharacter =
   | 'ines'
   | 'maxime'
   | 'mme_girault'
+  | 'lina'
+  | 'sami'
+  | 'nathan'
   | 'amis'
   | 'parents';
 
@@ -161,7 +165,8 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   ) {
     location = 'atelier_maquette';
   } else if (
-    /portemanteau|porte-manteau|manteau|cintre|casier|couloir|escalier|palier/.test(bodyLow)
+    (/portemanteau|porte-manteau|cintre|casier|couloir|escalier|palier/.test(bodyLow) ||
+      (/manteau/.test(bodyLow) && !/une\s+fois\s+dehors|terrain\s+central/.test(bodyLow)))
   ) {
     location = 'couloir_portemanteaux';
   } else if (/portail|grille|voiture|trottoir|maman\s+de\s+samy|père|sortie\s+du\s+collège/.test(bodyLow)) {
@@ -187,12 +192,17 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
     const isCollegeStory = /chloé|enzo|collège|mme\s+bernard|mme\s+laurent|groupe\s+privé/.test(bodyLow);
     const isRumeurStory = /noé|tilleuls|m\.\s+moreau|3\s+filtres|journal\s+anti-rumeur/.test(bodyLow);
     const isCasierStory = /inès|érables|mme\s+girault|casier/.test(bodyLow);
+    const isRecreationStory = /platanes|attelle|passeurs?\s+relais|charte\s+de\s+la\s+cour|ambassadeurs?/.test(bodyLow);
     if (paragraph.ending.tone === 'negative') {
       location = isCasierStory
         ? 'couloir_portemanteaux'
-        : /classe|salle/.test(bodyLow)
-          ? 'classe'
-          : 'cour_recreation';
+        : isRecreationStory
+          ? /classe|tableau|débats/.test(bodyLow)
+            ? 'classe'
+            : 'cour_recreation'
+          : /classe|salle/.test(bodyLow)
+            ? 'classe'
+            : 'cour_recreation';
     } else if (paragraph.ending.tone === 'positive') {
       if (isCollegeStory) {
         location = /phare|charte|conseil|classe|collège/.test(bodyLow)
@@ -208,6 +218,10 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
           : /casier|couloir/.test(bodyLow)
             ? 'couloir_portemanteaux'
             : 'cour_recreation';
+      } else if (isRecreationStory) {
+        location = /charte\s+de\s+la\s+cour/.test(bodyLow)
+          ? 'conseil_eleves'
+          : 'cour_recreation';
       } else {
         location = /classe|diplôme|fête|marronnier/.test(bodyLow)
           ? 'fete_ecole'
@@ -282,6 +296,9 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   if (/inès/.test(bodyLow)) characters.push('ines');
   if (/maxime/.test(bodyLow)) characters.push('maxime');
   if (/mme\s+girault|la\s+maîtresse|l['’]enseignante/.test(bodyLow)) characters.push('mme_girault');
+  if (/\blina\b/.test(bodyLow)) characters.push('lina');
+  if (/\bsami\b/.test(bodyLow)) characters.push('sami');
+  if (/\bnathan\b/.test(bodyLow)) characters.push('nathan');
   if (/thomas|yasmine|tom\b|antoine|jules|paul|camarades|amis|équipe|classe|élèves|délégué/.test(bodyLow)) {
     characters.push('amis');
   }
@@ -290,7 +307,7 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   // Featured prop
   let prop: SceneProp = 'none';
   if (/billes/.test(bodyLow)) prop = 'billes';
-  else if (/ballon|balle\s+au|foot/.test(bodyLow)) prop = 'ballon';
+  else if (/ballon|balle\s+(?:au|en\s+mousse)|foot/.test(bodyLow)) prop = 'ballon';
   else if (/plateau|pai|repas/.test(bodyLow) && location === 'cantine') prop = 'plateau_pai';
   else if (/carte\s+d['’]orientation|balise|orientation/.test(bodyLow)) prop = 'carte_orientation';
   else if (/cartes?\s+(?:de\s+collection|super\s+rares|rares|ultra-rare|brillante|volées)|piqué\s+trois\s+cartes/.test(bodyLow)) {
@@ -307,7 +324,9 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   else if (/chamboule-tout/.test(bodyLow)) prop = 'chamboule_tout';
   else if (/fanions/.test(bodyLow)) prop = 'fanions';
   else if (/manteau|cintre|portemanteau|porte-manteau/.test(bodyLow)) prop = 'manteau';
-  else if (/phare|charte|ambassadeur|affiche\s+de\s+sensibilisation/.test(bodyLow)) {
+  else if (/charte\s+de\s+la\s+cour|charte\s+officielle|ambassadeurs?\s+de\s+la\s+récréation/.test(bodyLow)) {
+    prop = 'charte_cour';
+  } else if (/phare|charte|ambassadeur|affiche\s+de\s+sensibilisation/.test(bodyLow)) {
     prop = 'charte_phare';
   } else if (/ordinateur|clavier|salle\s+informatique/.test(bodyLow)) {
     prop = 'ordinateur';
