@@ -2,7 +2,40 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseLDVELHDocument, validateBookGraph } from './docParser';
 import { cm1OmbreDeLaCour } from '../data/cm1_ombre_de_la_cour';
+import { cm1LaRumeurQuiCourt } from '../data/cm1_la_rumeur_qui_court';
 import { quatriemeGroupePrive } from '../data/quatrieme_groupe_prive';
+
+test('cm1LaRumeurQuiCourt contains all 150 paragraphs, 15 endings, and zero broken links', () => {
+  assert.equal(cm1LaRumeurQuiCourt.grade, 'CM1');
+  assert.equal(cm1LaRumeurQuiCourt.section, 'primaire');
+  assert.equal(cm1LaRumeurQuiCourt.title, 'La rumeur qui court');
+  assert.equal(cm1LaRumeurQuiCourt.totalParagraphs, 150);
+  assert.equal(Object.keys(cm1LaRumeurQuiCourt.paragraphs).length, 150);
+  assert.equal(cm1LaRumeurQuiCourt.introduction.length, 2);
+
+  for (let i = 1; i <= 150; i++) {
+    const p = cm1LaRumeurQuiCourt.paragraphs[i];
+    assert.ok(p, `CM1 Rumeur Paragraph ${i} must exist`);
+    assert.ok(p.text.length > 20, `CM1 Rumeur Paragraph ${i} must have body text`);
+
+    if (i <= 135) {
+      assert.equal(p.choices.length, 3, `CM1 Rumeur Paragraph ${i} must have 3 choices`);
+      assert.ok(!p.isEnding, `CM1 Rumeur Paragraph ${i} should not be an ending`);
+    } else {
+      assert.equal(p.isEnding, true, `CM1 Rumeur Paragraph ${i} must be an ending`);
+      assert.ok(p.ending, `CM1 Rumeur Paragraph ${i} must have ending metadata`);
+      assert.ok(p.ending.pedagogicalMessage.length > 10, `CM1 Rumeur Paragraph ${i} must have civic message`);
+      if (i <= 140) assert.equal(p.ending.category, 'A');
+      else if (i <= 145) assert.equal(p.ending.category, 'B');
+      else assert.equal(p.ending.category, 'C');
+    }
+  }
+
+  const report = validateBookGraph(cm1LaRumeurQuiCourt.paragraphs);
+  assert.equal(report.brokenLinks.length, 0);
+  assert.equal(report.endingCount, 15);
+  assert.equal(cm1LaRumeurQuiCourt.debateQuestions.length, 4);
+});
 
 test('cm1OmbreDeLaCour contains all 150 paragraphs with zero broken links', () => {
   assert.equal(cm1OmbreDeLaCour.totalParagraphs, 150);

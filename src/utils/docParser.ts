@@ -150,7 +150,7 @@ export function parseLDVELHDocument(
         mode = 'intro';
         continue;
       }
-      if (/^Pour\s+commencer\s+l['’]aventure/i.test(clean)) {
+      if (/^(?:Pour\s+commencer\s+l['’]aventure|L['’]aventure\s+commence\s+au\s+paragraphe)/i.test(clean)) {
         continue;
       }
       if (mode === 'meta') {
@@ -158,6 +158,8 @@ export function parseLDVELHDocument(
           detectedTitle = clean;
         } else if (!detectedSubtitle) {
           detectedSubtitle = clean;
+        } else if (/^Bienvenue\s+dans\s+ce\s+roman/i.test(clean)) {
+          howToPlay = howToPlay ? `${howToPlay} ${clean}` : clean;
         } else {
           introParagraphs.push(clean);
         }
@@ -289,20 +291,29 @@ export function parseLDVELHDocument(
         continue;
       }
 
-      // Check for pedagogical message
+      // Check for pedagogical / civic message
       const cleanLine = stripMarkdownBold(rawLine);
-      const pedMatch = cleanLine.match(/^Message\s+pédagogique\s*[:\-–—]\s*(.+)$/i);
+      const pedMatch = cleanLine.match(/^Message\s+(?:pédagogique|civique)\s*[:\-–—]\s*(.+)$/i);
       if (pedMatch) {
         currentPedagogicalMessage = pedMatch[1].trim();
         continue;
       }
 
-      // Check for "--- FIN DE L'AVENTURE --- ..." or "--- FIN DU RÉCIT — ... ---"
+      // Check for "--- FIN DE L'AVENTURE --- ..." or "--- FIN DU RÉCIT — ... ---" or ending outro sentences
       const outroMatch = cleanLine.match(
         /^-{2,}\s*FIN\s+(?:DE\s+L.+?AVENTURE|DU\s+RÉCIT)\s*[-—–]+\s*(.*?)(?:\s*-{2,})?$/i
       );
       if (outroMatch) {
         currentOutro = outroMatch[1].trim();
+        continue;
+      }
+      if (
+        currentEndingMeta &&
+        /^(?:C['’]est\s+la\s+fin\s+de\s+ton\s+aventure|C\s+me\s+est\s+la\s+fin\s+de\s+ton\s+aventure|BRAVO\s*!)/i.test(
+          cleanLine
+        )
+      ) {
+        currentOutro = cleanLine.replace(/^C\s+me\s+est\s+/i, "C'est ");
         continue;
       }
 

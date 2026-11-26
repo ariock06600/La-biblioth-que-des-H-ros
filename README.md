@@ -5,6 +5,7 @@ Application web éducative interactive (React + TypeScript + Tailwind CSS + Luci
 ## Contenu inclus
 
 - **« L'Ombre de la Cour » (CM1)** : intégralité des **150 paragraphes** (empathie, inclusion, PAI), avec 3 choix par étape, **15 fins pédagogiques** (Fin A Négative, Fin B Mitigée, Fin C Positive) et **4 questions de débat EMC**.
+- **« La rumeur qui court » (CM1)** : intégralité des **150 paragraphes** (rumeurs, vérification des faits, règle des 3 filtres), avec 3 choix par étape, **15 fins civiques** et **4 questions de débat EMC**.
 - **« Le Groupe Privé » (4ème)** : intégralité des **150 paragraphes** (cyberharcèlement au collège, droit à l'image, programme pHARe), avec 3 choix par étape, **15 fins pédagogiques** et **4 questions de débat EMC / pHARe**.
 - **Ordre des choix aléatoire (anti-copie)** : à chaque visite ou redémarrage, l'ordre des choix est mélangé de façon cryptographique pour éviter la copie entre élèves sur la même page.
 - **Bibliothèque graphique sur 7 étagères** :

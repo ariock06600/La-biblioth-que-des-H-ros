@@ -232,22 +232,26 @@ function SceneBackdrop({
   bookGrade,
   isOmbreBook,
   isGroupePriveBook,
+  isRumeurBook,
 }: {
   analysis: SceneAnalysis;
   bookGrade: string;
   isOmbreBook: boolean;
   isGroupePriveBook: boolean;
+  isRumeurBook: boolean;
 }) {
   const pal = MOOD_PALETTES[analysis.mood];
   const isEvening = analysis.timeOfDay === 'evening';
   const isCollege = /ème$/.test(bookGrade) || isGroupePriveBook;
   const schoolSign = isOmbreBook
     ? 'ÉCOLE DU MARRONNIER'
-    : isGroupePriveBook
-      ? 'COLLÈGE JEAN MOULIN'
-      : isCollege
-        ? 'COLLÈGE'
-        : 'ÉCOLE PRIMAIRE';
+    : isRumeurBook
+      ? 'ÉCOLE DES TILLEULS'
+      : isGroupePriveBook
+        ? 'COLLÈGE JEAN MOULIN'
+        : isCollege
+          ? 'COLLÈGE'
+          : 'ÉCOLE PRIMAIRE';
 
   switch (analysis.location) {
     case 'cour_recreation':
@@ -685,12 +689,18 @@ function SceneBackdrop({
           {/* Classroom blackboard in back */}
           <rect x="108" y="30" width="304" height="110" rx="4" fill={isGroupePriveBook ? '#2A3347' : '#2A443D'} stroke="#9C7148" strokeWidth="5" />
           <text x="260" y="72" textAnchor="middle" fill="#F2F0E6" fontSize="13.5" fontWeight="600" fontFamily="Fraunces, serif">
-            {isGroupePriveBook ? `Vie de classe · ${bookGrade} B` : `Conseil d’élèves · ${bookGrade}`}
+            {isGroupePriveBook
+              ? `Vie de classe · ${bookGrade} B`
+              : isRumeurBook
+                ? 'Séance EMC · Les 3 filtres'
+                : `Conseil d’élèves · ${bookGrade}`}
           </text>
           <text x="260" y="98" textAnchor="middle" fill="#C9DDD6" fontSize="10.2">
             {isGroupePriveBook
               ? 'Programme pHARe · Respect · Citoyenneté'
-              : 'Écoute · Respect · Vivre ensemble'}
+              : isRumeurBook
+                ? 'Est-ce vrai ? · Est-ce gentil ? · Est-ce utile ?'
+                : 'Écoute · Respect · Vivre ensemble'}
           </text>
           {/* Gathering floor */}
           {!isGroupePriveBook && (
@@ -764,10 +774,14 @@ function SceneBackdrop({
           <rect x="94" y="138" width="62" height="5" rx="2" fill="#F2EFE8" />
           <text x="204" y="66" textAnchor="middle" fill="#F3F1E8" fontSize="12.5" fontFamily="Fraunces, serif">
             {analysis.location === 'atelier_maquette'
-              ? 'Projet Fête de l’École'
+              ? isRumeurBook
+                ? 'Journal de classe · Anti-rumeurs'
+                : 'Projet Fête de l’École'
               : isGroupePriveBook
                 ? 'Salle 204 · 4ème B'
-                : `Classe de ${bookGrade}`}
+                : isRumeurBook
+                  ? 'Classe de CM1 · M. Moreau'
+                  : `Classe de ${bookGrade}`}
           </text>
           <line x1="114" y1="84" x2="294" y2="84" stroke="rgba(243,241,232,0.35)" strokeWidth="1.5" />
           <text x="204" y="106" textAnchor="middle" fill="#CFE2DA" fontSize="9.5">
@@ -851,6 +865,35 @@ function ScenePropOverlay({ prop }: { prop: SceneAnalysis['prop'] }) {
           </text>
         </g>
       );
+    case 'cartes':
+      return (
+        <g transform="translate(262, 260)">
+          <rect x="-22" y="-14" width="22" height="30" rx="3" fill="#F4C95D" stroke="#9E6E24" strokeWidth="1.5" transform="rotate(-14)" />
+          <rect x="-6" y="-16" width="22" height="30" rx="3" fill="#4B7BA3" stroke="#284A66" strokeWidth="1.5" transform="rotate(4)" />
+          <rect x="8" y="-13" width="22" height="30" rx="3" fill="#D96B52" stroke="#8C3826" strokeWidth="1.5" transform="rotate(18)" />
+          <circle cx="5" cy="-1" r="4.5" fill="#FFF6D1" />
+        </g>
+      );
+    case 'mot_plie':
+      return (
+        <g transform="translate(260, 262)">
+          <polygon points="-22,-10 18,-14 24,10 -16,14" fill="#FFFDF5" stroke="#9C8B74" strokeWidth="1.5" />
+          <line x1="-12" y1="-2" x2="12" y2="-4" stroke="#6E6356" strokeWidth="1.4" />
+          <line x1="-10" y1="5" x2="8" y2="3.5" stroke="#9C8F80" strokeWidth="1.4" />
+        </g>
+      );
+    case 'journal_classe':
+      return (
+        <g transform="translate(260, 152)">
+          <rect x="-40" y="-21" width="80" height="42" rx="4" fill="#FFFDF7" stroke="#6C4668" strokeWidth="2.4" />
+          <text x="0" y="-5" textAnchor="middle" fontSize="8" fontWeight="700" fill="#6C4668">
+            VRAI · GENTIL
+          </text>
+          <text x="0" y="9" textAnchor="middle" fontSize="8" fontWeight="700" fill="#2D6A4F">
+            UTILE (3 FILTRES)
+          </text>
+        </g>
+      );
     case 'billes':
       return (
         <g transform="translate(260, 276)">
@@ -926,6 +969,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
   const [aiImageUrl, setAiImageUrl] = useState<string | null>(null);
   const isOmbreBook = bookId === 'cm1-ombre-de-la-cour';
   const isGroupePriveBook = bookId === '4eme-le-groupe-prive';
+  const isRumeurBook = bookId === 'cm1-la-rumeur-qui-court';
 
   useEffect(() => {
     const controller = new AbortController();
@@ -950,12 +994,19 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
 
   const isSoloBedroomScene = isGroupePriveBook && analysis.location === 'maison_soir';
 
-  // Primary-school (CM1) characters
+  // Primary-school (CM1 L'Ombre de la Cour) characters
   const hasSamy = analysis.characters.includes('samy');
   const hasHugo = analysis.characters.includes('hugo');
   const hasLea = analysis.characters.includes('lea');
   const hasTeacher = analysis.characters.includes('mme_martin');
   const hasDirector = analysis.characters.includes('directeur');
+
+  // Primary-school (CM1 La rumeur qui court) characters
+  const hasNoe = analysis.characters.includes('noe');
+  const hasLucas = analysis.characters.includes('lucas');
+  const hasLeo = analysis.characters.includes('leo');
+  const hasMoreau = analysis.characters.includes('m_moreau');
+  const hasSurveillant = analysis.characters.includes('surveillant');
 
   // Middle-school (4ème) characters (classmates aren't physically in the teen's bedroom at night)
   const hasChloe = !isSoloBedroomScene && analysis.characters.includes('chloe');
@@ -967,10 +1018,30 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
   const hasFriends = !isSoloBedroomScene && analysis.characters.includes('amis');
   const hasParents = analysis.characters.includes('parents');
 
-  const hasLeftAdult = hasTeacher || hasCpe || hasProfCollege;
+  const hasLeftAdult = hasTeacher || hasMoreau || hasSurveillant || hasCpe || hasProfCollege;
 
   const captionLocation = useMemo(() => {
     if (isOmbreBook) return analysis.locationLabel;
+    if (isRumeurBook) {
+      switch (analysis.location) {
+        case 'classe':
+          return 'La salle de classe de M. Moreau';
+        case 'cour_recreation':
+          return 'La cour de l’école des Tilleuls';
+        case 'bureau_directeur':
+          return 'Bureau de la direction · École des Tilleuls';
+        case 'atelier_maquette':
+          return 'Atelier journal de classe & Charte';
+        case 'conseil_eleves':
+          return 'Séance EMC · Les 3 filtres (CM1)';
+        case 'portail_sortie':
+          return 'Devant le portail de l’école des Tilleuls';
+        case 'couloir_portemanteaux':
+          return 'Le couloir et les porte-manteaux';
+        default:
+          return analysis.locationLabel;
+      }
+    }
     if (isGroupePriveBook) {
       switch (analysis.location) {
         case 'classe':
@@ -996,7 +1067,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
       .replace(/de Mme Martin/g, '')
       .replace(/du Marronnier/g, /ème$/.test(bookGrade) ? 'du collège' : 'de l’école')
       .trim();
-  }, [analysis.location, analysis.locationLabel, bookGrade, isGroupePriveBook, isOmbreBook]);
+  }, [analysis.location, analysis.locationLabel, bookGrade, isGroupePriveBook, isOmbreBook, isRumeurBook]);
 
   return (
     <figure className="w-full" data-testid="scene-illustration">
@@ -1033,6 +1104,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
               bookGrade={bookGrade}
               isOmbreBook={isOmbreBook}
               isGroupePriveBook={isGroupePriveBook}
+              isRumeurBook={isRumeurBook}
             />
 
             {/* Adults */}
@@ -1062,7 +1134,32 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
               />
             )}
 
-            {!hasCpe && !hasDirector && (hasTeacher || hasProfCollege) && (
+            {!hasCpe && !hasDirector && hasMoreau && (
+              <CharacterFigure
+                x={108}
+                y={210}
+                shirt="#3A6B5C"
+                hair="#5A4638"
+                isAdult
+                hasGlasses
+                expression={analysis.mood === 'tense' ? 'concerned' : 'happy'}
+                label="M. Moreau"
+              />
+            )}
+
+            {!hasCpe && !hasDirector && !hasMoreau && hasSurveillant && (
+              <CharacterFigure
+                x={108}
+                y={210}
+                shirt="#E3B23C"
+                hair="#3F3228"
+                isAdult
+                expression="happy"
+                label={isRumeurBook ? 'Marc' : 'Surveillant'}
+              />
+            )}
+
+            {!hasCpe && !hasDirector && !hasMoreau && !hasSurveillant && (hasTeacher || hasProfCollege) && (
               <CharacterFigure
                 x={108}
                 y={210}
@@ -1075,7 +1172,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
               />
             )}
 
-            {/* Central classmate (Samy for CM1, Chloé for 4ème when relevant) */}
+            {/* Central classmate (Samy for CM1 Ombre, Noé for CM1 Rumeur, Chloé for 4ème) */}
             {isGroupePriveBook ? (
               hasChloe || analysis.location !== 'maison_soir' ? (
                 <CharacterFigure
@@ -1087,6 +1184,19 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
                   expression={protagonistExpression}
                   waving={analysis.mood === 'festive' || analysis.mood === 'warm'}
                   label="Chloé"
+                />
+              ) : null
+            ) : isRumeurBook ? (
+              hasNoe || analysis.location !== 'maison_soir' ? (
+                <CharacterFigure
+                  x={hasLeftAdult ? 186 : analysis.mood === 'sad' ? 148 : 204}
+                  y={224}
+                  shirt="#C94A38"
+                  hair="#3F2C22"
+                  hasBackpack={analysis.location === 'rang_entree' || analysis.location === 'portail_sortie'}
+                  expression={protagonistExpression}
+                  waving={analysis.mood === 'festive' || analysis.mood === 'warm'}
+                  label="Noé"
                 />
               ) : null
             ) : (
@@ -1105,7 +1215,12 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
             {/* Player / Narrator ally figure */}
             {!(analysis.endingTone === 'negative') && (
               <CharacterFigure
-                x={isGroupePriveBook && analysis.location === 'maison_soir' && !hasChloe ? 260 : 278}
+                x={
+                  (isGroupePriveBook && analysis.location === 'maison_soir' && !hasChloe) ||
+                  (isRumeurBook && analysis.location === 'maison_soir' && !hasNoe)
+                    ? 260
+                    : 278
+                }
                 y={226}
                 shirt="#D68C45"
                 hair="#593B28"
@@ -1122,7 +1237,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
               />
             )}
 
-            {/* CM1 antagonists (Hugo & Léa) */}
+            {/* CM1 Ombre antagonists (Hugo & Léa) */}
             {hasHugo && (
               <CharacterFigure
                 x={392}
@@ -1147,7 +1262,32 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
               />
             )}
 
-            {/* 4ème antagonists (Enzo & Sarah) */}
+            {/* CM1 Rumeur classmates (Léo & Lucas) */}
+            {isRumeurBook && hasLeo && (
+              <CharacterFigure
+                x={386}
+                y={224}
+                shirt="#5B6E94"
+                hair="#5E402B"
+                facing={-1}
+                expression={analysis.mood === 'tense' ? 'smirk' : 'happy'}
+                label="Léo"
+              />
+            )}
+
+            {isRumeurBook && hasLucas && !hasSarah && (
+              <CharacterFigure
+                x={hasLeo ? 446 : 392}
+                y={226}
+                shirt="#498067"
+                hair="#3E2E24"
+                facing={-1}
+                expression={analysis.mood === 'warm' || analysis.mood === 'festive' ? 'happy' : 'concerned'}
+                label="Lucas"
+              />
+            )}
+
+            {/* 4ème antagonists (Enzo & Sarah; Sarah also appears in CM1 Rumeur) */}
             {hasEnzo && !hasHugo && (
               <CharacterFigure
                 x={390}
@@ -1167,15 +1307,15 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
                 shirt="#6D4B7A"
                 hair="#7A4B2E"
                 facing={-1}
-                expression={analysis.mood === 'festive' ? 'neutral' : 'smirk'}
+                expression={analysis.mood === 'festive' || analysis.mood === 'warm' ? 'happy' : 'smirk'}
                 label="Sarah"
               />
             )}
 
             {/* Supportive Classmates when no crowding on the right */}
-            {hasFriends && !hasLea && !hasSarah && (
+            {hasFriends && !hasLea && !hasSarah && !(isRumeurBook && hasLucas) && (
               <CharacterFigure
-                x={hasHugo || hasEnzo ? 340 : 382}
+                x={hasHugo || hasEnzo || hasLeo ? 340 : 382}
                 y={226}
                 shirt="#4D8A6B"
                 hair="#2F2623"
@@ -1211,7 +1351,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
         <span className="truncate font-medium">{captionLocation}</span>
         <span className="shrink-0 tabular-nums text-[#786F63]">
           {bookTitle}
-          {isOmbreBook ? ` · Jour ${analysis.dayNumber}` : ` · ${bookGrade}`}
+          {isOmbreBook || isRumeurBook ? ` · Jour ${analysis.dayNumber}` : ` · ${bookGrade}`}
         </span>
       </figcaption>
     </figure>

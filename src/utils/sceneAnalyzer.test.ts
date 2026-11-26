@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { analyzeParagraphScene } from './sceneAnalyzer';
 import { cm1OmbreDeLaCour } from '../data/cm1_ombre_de_la_cour';
+import { cm1LaRumeurQuiCourt } from '../data/cm1_la_rumeur_qui_court';
 import { quatriemeGroupePrive } from '../data/quatrieme_groupe_prive';
 
 test('analyzeParagraphScene maps key CM1 story scenes accurately', () => {
@@ -36,6 +37,29 @@ test('analyzeParagraphScene maps key CM1 story scenes accurately', () => {
   const p150 = analyzeParagraphScene(cm1OmbreDeLaCour.paragraphs[150]);
   assert.equal(p150.endingTone, 'positive');
   assert.equal(p150.mood, 'festive');
+});
+
+test('analyzeParagraphScene maps key CM1 La rumeur qui court scenes accurately', () => {
+  const p1 = analyzeParagraphScene(cm1LaRumeurQuiCourt.paragraphs[1]);
+  assert.equal(p1.location, 'rang_entree');
+  assert.equal(p1.prop, 'cartes');
+  assert.ok(p1.characters.includes('noe'));
+  assert.ok(p1.characters.includes('leo'));
+
+  const p3 = analyzeParagraphScene(cm1LaRumeurQuiCourt.paragraphs[3]);
+  assert.equal(p3.prop, 'mot_plie');
+  assert.ok(p3.characters.includes('sarah'));
+  assert.ok(p3.characters.includes('m_moreau'));
+
+  const p63 = analyzeParagraphScene(cm1LaRumeurQuiCourt.paragraphs[63]);
+  assert.equal(p63.location, 'atelier_maquette');
+  assert.equal(p63.prop, 'journal_classe');
+  assert.ok(p63.characters.includes('m_moreau'));
+
+  const p147 = analyzeParagraphScene(cm1LaRumeurQuiCourt.paragraphs[147]);
+  assert.equal(p147.endingTone, 'positive');
+  assert.equal(p147.mood, 'festive');
+  assert.equal(p147.location, 'atelier_maquette');
 });
 
 test('analyzeParagraphScene maps key 4ème Le Groupe Privé scenes accurately', () => {

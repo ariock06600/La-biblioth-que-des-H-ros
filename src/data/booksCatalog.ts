@@ -1,5 +1,6 @@
 import type { BookData, ShelfDefinition } from '../types/book';
 import { cm1OmbreDeLaCour } from './cm1_ombre_de_la_cour';
+import { cm1LaRumeurQuiCourt } from './cm1_la_rumeur_qui_court';
 import { quatriemeGroupePrive } from './quatrieme_groupe_prive';
 
 export const LIBRARY_SHELVES: ShelfDefinition[] = [
@@ -56,5 +57,6 @@ export const LIBRARY_SHELVES: ShelfDefinition[] = [
 
 export const INITIAL_BOOKS: BookData[] = [
   cm1OmbreDeLaCour,
+  cm1LaRumeurQuiCourt,
   quatriemeGroupePrive,
 ];

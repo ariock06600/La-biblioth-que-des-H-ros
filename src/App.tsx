@@ -9,6 +9,15 @@ type SectionFilter = 'all' | 'primaire' | 'college';
 
 const STORAGE_PROGRESS = 'ldvelh_reading_progress_v1';
 
+const SPOTLIGHT_DESCRIPTIONS: Record<string, string> = {
+  'cm1-ombre-de-la-cour':
+    'Face au « jeu du fantôme » dans la cour de l’école du Marronnier, chaque décision compte pour Samy.',
+  'cm1-la-rumeur-qui-court':
+    'Un lundi matin à l’école des Tilleuls, une rumeur de vol vise Noé. Vas-tu l’amplifier ou vérifier les faits ?',
+  '4eme-le-groupe-prive':
+    'Un dimanche soir en 4ème B, un montage photo visant Chloé circule dans un groupe privé. Comment réagis-tu ?',
+};
+
 function loadStoredProgress(): Record<string, number> {
   try {
     const raw = window.localStorage.getItem(STORAGE_PROGRESS);
@@ -36,15 +45,6 @@ export default function App() {
     }
     return null;
   });
-
-  const cm1Book = useMemo(
-    () => INITIAL_BOOKS.find((b) => b.id === 'cm1-ombre-de-la-cour') || INITIAL_BOOKS[0],
-    []
-  );
-  const quatriemeBook = useMemo(
-    () => INITIAL_BOOKS.find((b) => b.id === '4eme-le-groupe-prive') || INITIAL_BOOKS[1],
-    []
-  );
 
   const totalParagraphsAcrossLibrary = useMemo(
     () => INITIAL_BOOKS.reduce((acc, b) => acc + b.totalParagraphs, 0),
@@ -154,104 +154,65 @@ export default function App() {
       </header>
 
       {/* Main Content */}
-      <main id="bibliotheque" className="flex-1 max-w-[1280px] w-full mx-auto px-5 sm:px-8 py-8 sm:py-12">
+      <main id="bibliotheque" className="flex-1 max-w-[1280px] w-full mx-auto px-5 sm:px-8 py-8 sm:py-11">
         {/* Warm CDI Welcome & Playable Books Spotlight */}
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start pb-10 border-b border-[#E3DAC8]">
-          <div className="lg:col-span-6 space-y-4">
+        <section className="space-y-7 pb-10 border-b border-[#E3DAC8]">
+          <div className="max-w-3xl space-y-3">
             <p className="text-sm font-semibold text-[#1E5647]">
               Bibliothèque interactive EMC & pHARe · Du CE2 à la 3ème
             </p>
-            <h1 className="font-display text-3xl sm:text-5xl font-bold text-[#1B2221] leading-[1.12] max-w-2xl">
+            <h1 className="font-display text-3xl sm:text-5xl font-bold text-[#1B2221] leading-[1.12]">
               Des livres dont tu es le héros pour mieux vivre ensemble
             </h1>
-            <p className="text-base sm:text-lg text-[#504A41] leading-relaxed max-w-[58ch]">
+            <p className="text-base sm:text-lg text-[#504A41] leading-relaxed max-w-[62ch]">
               Choisis un ouvrage sur les étagères en bois du CDI, prends tes propres décisions à
               chaque paragraphe illustré et découvre comment tes choix transforment la vie de la
               classe.
             </p>
-
-            <p className="pt-1 text-xs sm:text-sm text-[#6B6358] tabular-nums">
-              {INITIAL_BOOKS.length} livres complets · {totalParagraphsAcrossLibrary} paragraphes illustrés · Débats EMC
-            </p>
           </div>
 
-          {/* Two Playable Featured Book Plaques on Right */}
-          <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* CM1 Featured Plaque */}
-            {cm1Book && (
-              <div
-                className="rounded-2xl p-5 sm:p-6 text-[#FAF8F2] shadow-[0_16px_34px_-14px_rgba(30,52,70,0.34)] flex flex-col justify-between"
-                style={{
-                  background: `linear-gradient(145deg, ${cm1Book.coverTheme.secondary} 0%, ${cm1Book.coverTheme.primary} 100%)`,
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between text-xs font-semibold text-white/80">
-                    <span>Étagère CM1</span>
-                    <span className="tabular-nums">{cm1Book.totalParagraphs} §</span>
+          {/* All Playable Books Spotlight Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
+            {INITIAL_BOOKS.map((book) => {
+              const currentPara = savedProgress[book.id];
+              const hasSavedRun = typeof currentPara === 'number' && currentPara > 1;
+              return (
+                <div
+                  key={book.id}
+                  className="rounded-2xl p-5 sm:p-6 text-[#FAF8F2] shadow-[0_16px_34px_-14px_rgba(30,40,56,0.34)] flex flex-col justify-between"
+                  style={{
+                    background: `linear-gradient(145deg, ${book.coverTheme.secondary} 0%, ${book.coverTheme.primary} 100%)`,
+                  }}
+                >
+                  <div>
+                    <div className="flex items-center justify-between text-xs font-semibold text-white/80">
+                      <span>Étagère {book.grade}</span>
+                      <span className="tabular-nums">{book.totalParagraphs} §</span>
+                    </div>
+
+                    <h2 className="mt-2.5 font-display text-xl sm:text-2xl font-bold text-white leading-snug">
+                      {book.title}
+                    </h2>
+                    <p className="mt-2 text-xs sm:text-sm text-white/85 leading-relaxed">
+                      {SPOTLIGHT_DESCRIPTIONS[book.id] || book.introduction[0]}
+                    </p>
                   </div>
 
-                  <h2 className="mt-2.5 font-display text-xl sm:text-2xl font-bold text-white leading-snug">
-                    {cm1Book.title}
-                  </h2>
-                  <p className="mt-2 text-xs sm:text-sm text-white/85 leading-relaxed">
-                    Face au « jeu du fantôme » dans la cour de l’école du Marronnier, chaque décision
-                    compte pour Samy.
-                  </p>
-                </div>
-
-                <div className="mt-5 pt-3.5 border-t border-white/15 flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-[#FBE6B5] font-medium truncate">
-                    Empathie · Inclusion · PAI
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleOpenBook(cm1Book)}
-                    className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#F4EFE4] text-[#1B3E57] hover:bg-white transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-                  >
-                    Ouvrir
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* 4ème Featured Plaque */}
-            {quatriemeBook && (
-              <div
-                className="rounded-2xl p-5 sm:p-6 text-[#FAF8F2] shadow-[0_16px_34px_-14px_rgba(45,35,76,0.36)] flex flex-col justify-between"
-                style={{
-                  background: `linear-gradient(145deg, ${quatriemeBook.coverTheme.secondary} 0%, ${quatriemeBook.coverTheme.primary} 100%)`,
-                }}
-              >
-                <div>
-                  <div className="flex items-center justify-between text-xs font-semibold text-white/80">
-                    <span>Étagère 4ème</span>
-                    <span className="tabular-nums">{quatriemeBook.totalParagraphs} §</span>
+                  <div className="mt-5 pt-3.5 border-t border-white/15 flex items-center justify-between gap-2">
+                    <span className="text-[11px] text-[#FBE6B5] font-medium truncate">
+                      {book.theme}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenBook(book)}
+                      className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#F4EFE4] text-[#1E2524] hover:bg-white transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                    >
+                      {hasSavedRun ? `Reprendre (§ ${currentPara})` : 'Ouvrir'}
+                    </button>
                   </div>
-
-                  <h2 className="mt-2.5 font-display text-xl sm:text-2xl font-bold text-white leading-snug">
-                    {quatriemeBook.title}
-                  </h2>
-                  <p className="mt-2 text-xs sm:text-sm text-white/85 leading-relaxed">
-                    Un dimanche soir en 4ème B, un montage photo visant Chloé circule dans un groupe
-                    privé. Comment réagis-tu ?
-                  </p>
                 </div>
-
-                <div className="mt-5 pt-3.5 border-t border-white/15 flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-[#FBE6B5] font-medium truncate">
-                    Cyberharcèlement · pHARe
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleOpenBook(quatriemeBook)}
-                    className="px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#F4EFE4] text-[#322A52] hover:bg-white transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-                  >
-                    Ouvrir
-                  </button>
-                </div>
-              </div>
-            )}
+              );
+            })}
           </div>
         </section>
 

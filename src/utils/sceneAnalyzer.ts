@@ -36,6 +36,9 @@ export type SceneProp =
   | 'smartphone'
   | 'ordinateur'
   | 'charte_phare'
+  | 'cartes'
+  | 'mot_plie'
+  | 'journal_classe'
   | 'none';
 
 export type SceneCharacter =
@@ -50,6 +53,10 @@ export type SceneCharacter =
   | 'cpe'
   | 'prof_college'
   | 'surveillant'
+  | 'noe'
+  | 'lucas'
+  | 'leo'
+  | 'm_moreau'
   | 'amis'
   | 'parents';
 
@@ -107,7 +114,7 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
 
   if (/\bcpe\b|mme\s+bernard|vie\s+scolaire/.test(bodyLow)) {
     location = 'bureau_cpe';
-  } else if (/bureau\s+(du|de\s+m\.\s+bernard)|directeur|\bprincipal\b/.test(bodyLow)) {
+  } else if (/bureau\s+(du|de\s+m\.\s+bernard|de\s+la\s+direction)|directeur|\bprincipal\b/.test(bodyLow)) {
     location = 'bureau_directeur';
   } else if (/infirmerie|infirmière|médicament/.test(bodyLow)) {
     location = 'infirmerie';
@@ -115,23 +122,27 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
     location = 'salle_info';
   } else if (/foyer|baby-foot/.test(bodyLow)) {
     location = 'foyer_college';
-  } else if (/tapis|conseil\s+d['’]élèves|vie\s+de\s+classe|ambassadeur|phare|atelier\s+de\s+sensibilisation/.test(bodyLow)) {
+  } else if (
+    /tapis|conseil\s+d['’]élèves|vie\s+de\s+classe|ambassadeur|phare|atelier\s+de\s+sensibilisation|téléphone\s+arabe|séance\s+d['’]enseignement\s+moral/.test(
+      bodyLow
+    )
+  ) {
     location = 'conseil_eleves';
   } else if (
-    /kermesse|chamboule-tout|fanions|fête\s+de\s+l['’]école|stand|diplôme|exposition|goûter\s+d['’]adieu/.test(
+    /kermesse|chamboule-tout|fanions|fête\s+de\s+l['’]école|stand|diplôme|goûter\s+d['’]adieu/.test(
       bodyLow
     )
   ) {
     location = 'fete_ecole';
   } else if (
-    /téléphone\s+vibre|sur\s+ton\s+bureau|dans\s+ta\s+chambre|dimanche\s+soir|23h|de\s+retour\s+chez\s+toi|soirée|goûter|nuit|réveil|devoirs|endors|couches/.test(
+    /téléphone\s+vibre|sur\s+ton\s+bureau|dans\s+ta\s+chambre|dimanche\s+soir|23h|de\s+retour\s+chez\s+toi|soirée|goûter|nuit|réveil|devoirs|endors|couches|rentres\s+chez\s+toi/.test(
       bodyLow
     )
   ) {
     location = 'maison_soir';
   } else if (
     /course\s+d['’]orientation|balise|chronométreur|parc\s+de\s+l['’]école|gymnase/.test(bodyLow) ||
-    (/\beps\b/.test(bodyLow) && !/vendredi|photo|cliché|montage/.test(bodyLow))
+    (/\beps\b/.test(bodyLow) && !/vendredi|photo|cliché|montage|matériel/.test(bodyLow))
   ) {
     location = 'parc_eps';
   } else if (
@@ -141,25 +152,27 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   ) {
     location = 'cantine';
   } else if (
-    /maquette|affiche|atelier|peinture|croquis|panneau|feutres|exposé\s+des\s+sciences/.test(
+    /maquette|affiche|atelier|peinture|croquis|panneau|feutres|exposé\s+des\s+sciences|journal\s+de\s+classe|journal\s+anti-rumeur|charte\s+du\s+bon\s+camarade/.test(
       bodyLow
     )
   ) {
     location = 'atelier_maquette';
   } else if (
-    /portemanteau|manteau|cintre|casier|couloir|escalier|palier/.test(bodyLow)
+    /portemanteau|porte-manteau|manteau|cintre|casier|couloir|escalier|palier/.test(bodyLow)
   ) {
     location = 'couloir_portemanteaux';
-  } else if (/portail|voiture|trottoir|maman\s+de\s+samy|père|sortie\s+du\s+collège/.test(bodyLow)) {
+  } else if (/portail|grille|voiture|trottoir|maman\s+de\s+samy|père|sortie\s+du\s+collège/.test(bodyLow)) {
     location = 'portail_sortie';
   } else if (
-    /rangé\s+devant|rang\s+du\s+matin|rangement\s+du\s+matin|rangent\s+deux\s+par\s+deux/.test(
+    /rangé\s+devant|rang\s+du\s+matin|rangement\s+du\s+matin|rangent\s+deux\s+par\s+deux|dans\s+le\s+rang\s+de\s+la\s+classe/.test(
       bodyLow
     )
   ) {
     location = 'rang_entree';
   } else if (
-    /cour|récréation|préau|ballon|billes|banc|marronnier|chat\s+perché|terrain/.test(bodyLow)
+    /cour|récréation|préau|ballon|billes|banc|marronnier|chat\s+perché|terrain|bac\s+à\s+sable/.test(
+      bodyLow
+    )
   ) {
     location = 'cour_recreation';
   } else {
@@ -168,13 +181,18 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
 
   // Override endings for clear symbolic scenes
   if (paragraph.isEnding && paragraph.ending) {
-    const isCollegeStory = /chloé|enzo|sarah|collège|mme\s+bernard|mme\s+laurent|groupe\s+privé/.test(bodyLow);
+    const isCollegeStory = /chloé|enzo|collège|mme\s+bernard|mme\s+laurent|groupe\s+privé/.test(bodyLow);
+    const isRumeurStory = /noé|tilleuls|m\.\s+moreau|3\s+filtres|journal\s+anti-rumeur/.test(bodyLow);
     if (paragraph.ending.tone === 'negative') {
       location = /classe|salle/.test(bodyLow) ? 'classe' : 'cour_recreation';
     } else if (paragraph.ending.tone === 'positive') {
       if (isCollegeStory) {
         location = /phare|charte|conseil|classe|collège/.test(bodyLow)
           ? 'conseil_eleves'
+          : 'cour_recreation';
+      } else if (isRumeurStory) {
+        location = /journal|affiche|3\s+filtres|charte/.test(bodyLow)
+          ? 'atelier_maquette'
           : 'cour_recreation';
       } else {
         location = /classe|diplôme|fête|marronnier/.test(bodyLow)
@@ -194,24 +212,24 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
           ? 'sad'
           : 'tense';
   } else if (
-    /larme|tristesse|isolé|replié|honte|lâche|blessé|humilié|humiliant|pâlir|douleur|baisse\s+la\s+tête|étouffent\s+un\s+rire|teint\s+pâle|effondr|sanglot|anxieu|angoiss|boule\s+au\s+ventre/.test(
+    /larme|tristesse|isolé|replié|honte|lâche|blessé|humilié|humiliant|pâlir|douleur|baisse\s+la\s+tête|étouffent\s+un\s+rire|teint\s+pâle|effondr|sanglot|anxieu|angoiss|boule\s+au\s+ventre|détresse|prostré/.test(
       bodyLow
     )
   ) {
     mood = 'sad';
   } else if (
-    /dispute|crie|regard\s+noir|tendue|bouscul|colère|sifflant|énervé|provoqu|casse|tumulte|moque|fantôme|insult|menac|malaise|convoqu|sanction|rumeur|viral/.test(
+    /dispute|crie|regard\s+noir|tendue|bouscul|colère|sifflant|énervé|provoqu|casse|tumulte|moque|fantôme|insult|menac|malaise|convoqu|sanction|rumeur|viral|voleur|méfiant|étrange|chuchot|calomnie/.test(
       bodyLow
     )
   ) {
     mood = 'tense';
   } else if (
-    /sourire|rayonne|fier|joyeuse|applaudit|félicite|super|amitié|enthousiasme|diplôme|fanions|remercie|solidaire|bravo/.test(
+    /sourire|rayonne|fier|joyeuse|applaudit|félicite|super|amitié|enthousiasme|diplôme|fanions|remercie|solidaire|bravo|radieuse/.test(
       bodyLow
     )
   ) {
     mood = location === 'fete_ecole' ? 'festive' : 'warm';
-  } else if (/espoir|apais|réfléchi|demain|progrès|soulagé|rassur|protég/.test(bodyLow)) {
+  } else if (/espoir|apais|réfléchi|demain|progrès|soulagé|rassur|protég|vérité/.test(bodyLow)) {
     mood = 'hopeful';
   }
 
@@ -242,8 +260,12 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   if (/mme\s+laurent|m\.\s+lemaire|m\.\s+thomas|professeur|prof\b/.test(bodyLow)) {
     characters.push('prof_college');
   }
-  if (/surveillant|aed/.test(bodyLow)) characters.push('surveillant');
-  if (/thomas|yasmine|camarades|amis|équipe|classe|élèves|délégué/.test(bodyLow)) {
+  if (/surveillant|aed|\bmarc\b/.test(bodyLow)) characters.push('surveillant');
+  if (/noé/.test(bodyLow)) characters.push('noe');
+  if (/lucas/.test(bodyLow)) characters.push('lucas');
+  if (/léo/.test(bodyLow)) characters.push('leo');
+  if (/m\.\s+moreau|le\s+maître/.test(bodyLow)) characters.push('m_moreau');
+  if (/thomas|yasmine|tom\b|antoine|maxime|camarades|amis|équipe|classe|élèves|délégué/.test(bodyLow)) {
     characters.push('amis');
   }
   if (/maman|père|parents|famille/.test(bodyLow)) characters.push('parents');
@@ -251,17 +273,23 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   // Featured prop
   let prop: SceneProp = 'none';
   if (/billes/.test(bodyLow)) prop = 'billes';
-  else if (/ballon|foot/.test(bodyLow)) prop = 'ballon';
+  else if (/ballon|balle\s+au|foot/.test(bodyLow)) prop = 'ballon';
   else if (/plateau|pai|repas/.test(bodyLow) && location === 'cantine') prop = 'plateau_pai';
-  else if (/carte|balise|orientation/.test(bodyLow)) prop = 'carte_orientation';
-  else if (/diplôme/.test(bodyLow)) prop = 'diplome';
+  else if (/carte\s+d['’]orientation|balise|orientation/.test(bodyLow)) prop = 'carte_orientation';
+  else if (/cartes?\s+(?:de\s+collection|super\s+rares|rares|ultra-rare|brillante|volées)|piqué\s+trois\s+cartes/.test(bodyLow)) {
+    prop = 'cartes';
+  } else if (/petit\s+mot\s+plié|mot\s+plié|papier\s+plié|fais\s+passer|petit\s+papier/.test(bodyLow)) {
+    prop = 'mot_plie';
+  } else if (/journal\s+de\s+classe|journal\s+anti-rumeur|charte\s+du\s+bon\s+camarade|3\s+filtres|trois\s+filtres/.test(bodyLow)) {
+    prop = 'journal_classe';
+  } else if (/diplôme/.test(bodyLow)) prop = 'diplome';
   else if (/peinture/.test(bodyLow)) prop = 'peinture';
   else if (/maquette|croquis/.test(bodyLow)) prop = 'maquette_affiche';
   else if (/bandes?\s+dessinées?|\bbd\b/.test(bodyLow)) prop = 'bd';
   else if (/trousse|règle|stylos/.test(bodyLow)) prop = 'trousse_regle';
   else if (/chamboule-tout/.test(bodyLow)) prop = 'chamboule_tout';
   else if (/fanions/.test(bodyLow)) prop = 'fanions';
-  else if (/manteau|cintre|portemanteau/.test(bodyLow)) prop = 'manteau';
+  else if (/manteau|cintre|portemanteau|porte-manteau/.test(bodyLow)) prop = 'manteau';
   else if (/phare|charte|ambassadeur|affiche\s+de\s+sensibilisation/.test(bodyLow)) {
     prop = 'charte_phare';
   } else if (/ordinateur|clavier|salle\s+informatique/.test(bodyLow)) {
