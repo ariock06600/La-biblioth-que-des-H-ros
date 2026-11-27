@@ -1,4 +1,5 @@
 import type { BookData, ShelfDefinition } from '../types/book';
+import { ce2CouloirDesChuchotements } from './ce2_couloir_des_chuchotements';
 import { cm1OmbreDeLaCour } from './cm1_ombre_de_la_cour';
 import { cm1LaRumeurQuiCourt } from './cm1_la_rumeur_qui_court';
 import { cm1LeMysterieuxCasier } from './cm1_le_mysterieux_casier';
@@ -58,6 +59,7 @@ export const LIBRARY_SHELVES: ShelfDefinition[] = [
 ];
 
 export const INITIAL_BOOKS: BookData[] = [
+  ce2CouloirDesChuchotements,
   cm1OmbreDeLaCour,
   cm1LaRumeurQuiCourt,
   cm1LeMysterieuxCasier,

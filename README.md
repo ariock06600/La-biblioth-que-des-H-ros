@@ -4,6 +4,7 @@ Application web éducative interactive (React + TypeScript + Tailwind CSS + Luci
 
 ## Contenu inclus
 
+- **« Le couloir des chuchotements » (CE2)** : intégralité des **150 paragraphes** (effet de meute, empathie, alerter un adulte, Mur des qualités), avec **15 fins pédagogiques** et **4 questions de débat EMC / pHARe**.
 - **« L'Ombre de la Cour » (CM1)** : intégralité des **150 paragraphes** (empathie, inclusion, PAI), avec 3 choix par étape, **15 fins pédagogiques** (Fin A Négative, Fin B Mitigée, Fin C Positive) et **4 questions de débat EMC**.
 - **« La rumeur qui court » (CM1)** : intégralité des **150 paragraphes** (rumeurs, vérification des faits, règle des 3 filtres), avec 3 choix par étape, **15 fins civiques** et **4 questions de débat EMC**.
 - **« Le mystérieux casier » (CM1)** : intégralité des **150 paragraphes** (intimidation répétée, conservation des preuves, entraide), avec 3 choix par étape, **15 fins pédagogiques** et **4 questions de débat EMC**.

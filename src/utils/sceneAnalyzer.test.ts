@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { analyzeParagraphScene } from './sceneAnalyzer';
+import { ce2CouloirDesChuchotements } from '../data/ce2_couloir_des_chuchotements';
 import { cm1OmbreDeLaCour } from '../data/cm1_ombre_de_la_cour';
 import { cm1LaRumeurQuiCourt } from '../data/cm1_la_rumeur_qui_court';
 import { cm1LeMysterieuxCasier } from '../data/cm1_le_mysterieux_casier';
@@ -101,6 +102,26 @@ test('analyzeParagraphScene maps key CM1 Mission : récréation scenes accuratel
   assert.equal(p146.location, 'cour_recreation');
   assert.ok(p146.characters.includes('lina'));
   assert.ok(p146.characters.includes('sami'));
+});
+
+test('analyzeParagraphScene maps key CE2 Le couloir des chuchotements scenes accurately', () => {
+  const p1 = analyzeParagraphScene(ce2CouloirDesChuchotements.paragraphs[1]);
+  assert.equal(p1.location, 'couloir_portemanteaux');
+  assert.ok(p1.characters.includes('maya'));
+  assert.ok(p1.characters.includes('theo'));
+  assert.ok(p1.characters.includes('clara'));
+  assert.ok(p1.characters.includes('mme_martin'));
+
+  const p105 = analyzeParagraphScene(ce2CouloirDesChuchotements.paragraphs[105]);
+  assert.equal(p105.prop, 'mur_qualites');
+
+  const p147 = analyzeParagraphScene(ce2CouloirDesChuchotements.paragraphs[147]);
+  assert.equal(p147.endingTone, 'positive');
+  assert.equal(p147.mood, 'festive');
+  assert.equal(p147.location, 'couloir_portemanteaux');
+  assert.equal(p147.prop, 'mur_qualites');
+  assert.ok(p147.characters.includes('maya'));
+  assert.ok(p147.characters.includes('samy'));
 });
 
 test('analyzeParagraphScene maps key 4ème Le Groupe Privé scenes accurately', () => {

@@ -1,11 +1,48 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseLDVELHDocument, validateBookGraph } from './docParser';
+import { ce2CouloirDesChuchotements } from '../data/ce2_couloir_des_chuchotements';
 import { cm1OmbreDeLaCour } from '../data/cm1_ombre_de_la_cour';
 import { cm1LaRumeurQuiCourt } from '../data/cm1_la_rumeur_qui_court';
 import { cm1LeMysterieuxCasier } from '../data/cm1_le_mysterieux_casier';
 import { cm1MissionRecreation } from '../data/cm1_mission_recreation';
 import { quatriemeGroupePrive } from '../data/quatrieme_groupe_prive';
+
+test('ce2CouloirDesChuchotements contains all 150 paragraphs, 15 endings, and zero broken links', () => {
+  assert.equal(ce2CouloirDesChuchotements.grade, 'CE2');
+  assert.equal(ce2CouloirDesChuchotements.section, 'primaire');
+  assert.equal(ce2CouloirDesChuchotements.title, 'Le couloir des chuchotements');
+  assert.equal(ce2CouloirDesChuchotements.totalParagraphs, 150);
+  assert.equal(Object.keys(ce2CouloirDesChuchotements.paragraphs).length, 150);
+  assert.equal(ce2CouloirDesChuchotements.introduction.length, 2);
+
+  for (let i = 1; i <= 150; i++) {
+    const p = ce2CouloirDesChuchotements.paragraphs[i];
+    assert.ok(p, `CE2 Couloir Paragraph ${i} must exist`);
+    assert.ok(p.text.length > 20, `CE2 Couloir Paragraph ${i} must have body text`);
+
+    if (i <= 135) {
+      assert.ok(
+        p.choices.length >= 2 && p.choices.length <= 3,
+        `CE2 Couloir Paragraph ${i} must have 2-3 distinct choices`
+      );
+      assert.ok(!p.isEnding, `CE2 Couloir Paragraph ${i} should not be an ending`);
+    } else {
+      assert.equal(p.isEnding, true, `CE2 Couloir Paragraph ${i} must be an ending`);
+      assert.ok(p.ending, `CE2 Couloir Paragraph ${i} must have ending metadata`);
+      assert.ok(p.ending.pedagogicalMessage.length > 10, `CE2 Couloir Paragraph ${i} must have pedagogical message`);
+      assert.ok(p.ending.outro && p.ending.outro.length > 10, `CE2 Couloir Paragraph ${i} must have outro`);
+      if (i <= 140) assert.equal(p.ending.category, 'A');
+      else if (i <= 145) assert.equal(p.ending.category, 'B');
+      else assert.equal(p.ending.category, 'C');
+    }
+  }
+
+  const report = validateBookGraph(ce2CouloirDesChuchotements.paragraphs);
+  assert.equal(report.brokenLinks.length, 0);
+  assert.equal(report.endingCount, 15);
+  assert.equal(ce2CouloirDesChuchotements.debateQuestions.length, 4);
+});
 
 test('cm1MissionRecreation contains all 150 paragraphs, 15 endings, and zero broken links', () => {
   assert.equal(cm1MissionRecreation.grade, 'CM1');

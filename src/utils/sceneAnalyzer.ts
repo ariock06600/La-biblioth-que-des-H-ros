@@ -37,6 +37,7 @@ export type SceneProp =
   | 'ordinateur'
   | 'charte_phare'
   | 'charte_cour'
+  | 'mur_qualites'
   | 'cartes'
   | 'mot_plie'
   | 'journal_classe'
@@ -64,6 +65,9 @@ export type SceneCharacter =
   | 'lina'
   | 'sami'
   | 'nathan'
+  | 'maya'
+  | 'theo'
+  | 'clara'
   | 'amis'
   | 'parents';
 
@@ -193,9 +197,12 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
     const isRumeurStory = /noé|tilleuls|m\.\s+moreau|3\s+filtres|journal\s+anti-rumeur/.test(bodyLow);
     const isCasierStory = /inès|érables|mme\s+girault|casier/.test(bodyLow);
     const isRecreationStory = /platanes|attelle|passeurs?\s+relais|charte\s+de\s+la\s+cour|ambassadeurs?/.test(bodyLow);
+    const isCerisiersStory = /cerisiers|maya|théo|clara|mur\s+des\s+qualités|boîte\s+à\s+mots\s+gentils/.test(bodyLow);
     if (paragraph.ending.tone === 'negative') {
-      location = isCasierStory
-        ? 'couloir_portemanteaux'
+      location = isCasierStory || isCerisiersStory
+        ? /cour/.test(bodyLow) && !/couloir|casiers|porte-manteau/.test(bodyLow)
+          ? 'cour_recreation'
+          : 'couloir_portemanteaux'
         : isRecreationStory
           ? /classe|tableau|débats/.test(bodyLow)
             ? 'classe'
@@ -222,6 +229,12 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
         location = /charte\s+de\s+la\s+cour/.test(bodyLow)
           ? 'conseil_eleves'
           : 'cour_recreation';
+      } else if (isCerisiersStory) {
+        location = /mur\s+des\s+qualités|fresque|couloir/.test(bodyLow)
+          ? 'couloir_portemanteaux'
+          : /cour|jeux\s+collectifs/.test(bodyLow)
+            ? 'cour_recreation'
+            : 'classe';
       } else {
         location = /classe|diplôme|fête|marronnier/.test(bodyLow)
           ? 'fete_ecole'
@@ -299,6 +312,9 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
   if (/\blina\b/.test(bodyLow)) characters.push('lina');
   if (/\bsami\b/.test(bodyLow)) characters.push('sami');
   if (/\bnathan\b/.test(bodyLow)) characters.push('nathan');
+  if (/\bmaya\b/.test(bodyLow)) characters.push('maya');
+  if (/\bthéo\b/.test(bodyLow)) characters.push('theo');
+  if (/\bclara\b/.test(bodyLow)) characters.push('clara');
   if (/thomas|yasmine|tom\b|antoine|jules|paul|camarades|amis|équipe|classe|élèves|délégué/.test(bodyLow)) {
     characters.push('amis');
   }
@@ -306,7 +322,8 @@ export function analyzeParagraphScene(paragraph: BookParagraph): SceneAnalysis {
 
   // Featured prop
   let prop: SceneProp = 'none';
-  if (/billes/.test(bodyLow)) prop = 'billes';
+  if (/boîte\s+à\s+mots\s+gentils|mur\s+des\s+qualités/.test(bodyLow)) prop = 'mur_qualites';
+  else if (/billes/.test(bodyLow)) prop = 'billes';
   else if (/ballon|balle\s+(?:au|en\s+mousse)|foot/.test(bodyLow)) prop = 'ballon';
   else if (/plateau|pai|repas/.test(bodyLow) && location === 'cantine') prop = 'plateau_pai';
   else if (/carte\s+d['’]orientation|balise|orientation/.test(bodyLow)) prop = 'carte_orientation';

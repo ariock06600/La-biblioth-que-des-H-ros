@@ -235,6 +235,7 @@ function SceneBackdrop({
   isRumeurBook,
   isCasierBook,
   isRecreationBook,
+  isCerisiersBook,
 }: {
   analysis: SceneAnalysis;
   bookGrade: string;
@@ -243,6 +244,7 @@ function SceneBackdrop({
   isRumeurBook: boolean;
   isCasierBook: boolean;
   isRecreationBook: boolean;
+  isCerisiersBook: boolean;
 }) {
   const pal = MOOD_PALETTES[analysis.mood];
   const isEvening = analysis.timeOfDay === 'evening';
@@ -255,11 +257,13 @@ function SceneBackdrop({
         ? 'ÉCOLE DES ÉRABLES'
         : isRecreationBook
           ? 'ÉCOLE DES PLATANES'
-          : isGroupePriveBook
-            ? 'COLLÈGE JEAN MOULIN'
-            : isCollege
-              ? 'COLLÈGE'
-              : 'ÉCOLE PRIMAIRE';
+          : isCerisiersBook
+            ? 'ÉCOLE DES CERISIERS'
+            : isGroupePriveBook
+              ? 'COLLÈGE JEAN MOULIN'
+              : isCollege
+                ? 'COLLÈGE'
+                : 'ÉCOLE PRIMAIRE';
 
   switch (analysis.location) {
     case 'cour_recreation':
@@ -703,7 +707,9 @@ function SceneBackdrop({
                 ? 'Séance EMC · Les 3 filtres'
                 : isRecreationBook
                   ? 'Vie de classe · Charte de la cour'
-                  : `Conseil d’élèves · ${bookGrade}`}
+                  : isCerisiersBook
+                    ? 'Temps de parole · Empathie (CE2)'
+                    : `Conseil d’élèves · ${bookGrade}`}
           </text>
           <text x="260" y="98" textAnchor="middle" fill="#C9DDD6" fontSize="10.2">
             {isGroupePriveBook
@@ -712,7 +718,9 @@ function SceneBackdrop({
                 ? 'Est-ce vrai ? · Est-ce gentil ? · Est-ce utile ?'
                 : isRecreationBook
                   ? 'Partage · Passeurs relais · Fair-play'
-                  : 'Écoute · Respect · Vivre ensemble'}
+                  : isCerisiersBook
+                    ? 'Bienveillance · Mots gentils · Entraide'
+                    : 'Écoute · Respect · Vivre ensemble'}
           </text>
           {/* Gathering floor */}
           {!isGroupePriveBook && (
@@ -771,6 +779,24 @@ function SceneBackdrop({
           ) : (
             /* Primary school coat rack strip */
             <g>
+              {/* Colorful "Mur des qualités" cards above coat rack when transformed in CE2 story */}
+              {isCerisiersBook && (analysis.prop === 'mur_qualites' || analysis.dayNumber === 3) && (
+                <g transform="translate(194, 42)">
+                  <rect x="0" y="0" width="276" height="58" rx="4" fill="#FAF6EC" stroke="#B68B5B" strokeWidth="2.5" />
+                  <text x="138" y="16" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#2F6652">
+                    MUR DES QUALITÉS · CE2
+                  </text>
+                  {[
+                    { x: 18, c: '#F8D88A' },
+                    { x: 68, c: '#F2B5A7' },
+                    { x: 118, c: '#A9D6C3' },
+                    { x: 168, c: '#B9D6EC' },
+                    { x: 218, c: '#E6C2E8' },
+                  ].map((card) => (
+                    <rect key={card.x} x={card.x} y="24" width="38" height="24" rx="2" fill={card.c} />
+                  ))}
+                </g>
+              )}
               <rect x="184" y="114" width="298" height="14" rx="3" fill="#9E6E44" />
               {[214, 268, 322, 376, 430].map((hx, idx) => (
                 <g key={hx}>
@@ -808,7 +834,9 @@ function SceneBackdrop({
                   ? 'Club de dessin · Respect'
                   : isRecreationBook
                     ? 'Affiche · Cour des Platanes'
-                    : 'Projet Fête de l’École'
+                    : isCerisiersBook
+                      ? 'Fresque & Mur des qualités'
+                      : 'Projet Fête de l’École'
               : isGroupePriveBook
                 ? 'Salle 204 · 4ème B'
                 : isRumeurBook
@@ -817,7 +845,9 @@ function SceneBackdrop({
                     ? 'Classe de CM1 · Mme Girault'
                     : isRecreationBook
                       ? 'Classe de CM1 · M. Bernard'
-                      : `Classe de ${bookGrade}`}
+                      : isCerisiersBook
+                        ? 'Classe de CE2 · Mme Martin'
+                        : `Classe de ${bookGrade}`}
           </text>
           <line x1="114" y1="84" x2="294" y2="84" stroke="rgba(243,241,232,0.35)" strokeWidth="1.5" />
           <text x="204" y="106" textAnchor="middle" fill="#CFE2DA" fontSize="9.5">
@@ -910,6 +940,18 @@ function ScenePropOverlay({ prop }: { prop: SceneAnalysis['prop'] }) {
           </text>
           <text x="0" y="9" textAnchor="middle" fontSize="7" fontWeight="600" fill="#2D6A4F">
             Partage & Fair-play
+          </text>
+        </g>
+      );
+    case 'mur_qualites':
+      return (
+        <g transform="translate(260, 154)">
+          <rect x="-44" y="-20" width="88" height="40" rx="4" fill="#FFFDF6" stroke="#2F6652" strokeWidth="2.4" />
+          <text x="0" y="-4" textAnchor="middle" fontSize="7.6" fontWeight="700" fill="#2F6652">
+            BOÎTE À MOTS
+          </text>
+          <text x="0" y="9" textAnchor="middle" fontSize="7" fontWeight="600" fill="#B5654D">
+            Gentils & Qualités
           </text>
         </g>
       );
@@ -1020,6 +1062,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
   const isRumeurBook = bookId === 'cm1-la-rumeur-qui-court';
   const isCasierBook = bookId === 'cm1-le-mysterieux-casier';
   const isRecreationBook = bookId === 'cm1-mission-recreation';
+  const isCerisiersBook = bookId === 'ce2-couloir-des-chuchotements';
 
   useEffect(() => {
     const controller = new AbortController();
@@ -1067,6 +1110,11 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
   const hasLina = analysis.characters.includes('lina');
   const hasSami = analysis.characters.includes('sami');
   const hasNathan = analysis.characters.includes('nathan');
+
+  // Primary-school (CE2 Le couloir des chuchotements) characters
+  const hasMaya = analysis.characters.includes('maya');
+  const hasTheo = analysis.characters.includes('theo');
+  const hasClara = analysis.characters.includes('clara');
 
   // Middle-school (4ème) characters (classmates aren't physically in the teen's bedroom at night)
   const hasChloe = !isSoloBedroomScene && analysis.characters.includes('chloe');
@@ -1122,6 +1170,26 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
           return analysis.locationLabel;
       }
     }
+    if (isCerisiersBook) {
+      switch (analysis.location) {
+        case 'classe':
+          return 'La salle de classe de Mme Martin (CE2)';
+        case 'cour_recreation':
+          return 'La cour de l’école des Cerisiers';
+        case 'bureau_directeur':
+          return 'Bureau de la directrice · École des Cerisiers';
+        case 'atelier_maquette':
+          return 'Atelier fresque & Mur des qualités';
+        case 'conseil_eleves':
+          return 'Temps de parole · Empathie & entraide (CE2)';
+        case 'portail_sortie':
+          return 'Devant le portail de l’école des Cerisiers';
+        case 'couloir_portemanteaux':
+          return 'Le couloir des porte-manteaux · École des Cerisiers';
+        default:
+          return analysis.locationLabel;
+      }
+    }
     if (isRumeurBook) {
       switch (analysis.location) {
         case 'classe':
@@ -1167,7 +1235,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
       .replace(/de Mme Martin/g, '')
       .replace(/du Marronnier/g, /ème$/.test(bookGrade) ? 'du collège' : 'de l’école')
       .trim();
-  }, [analysis.location, analysis.locationLabel, bookGrade, isCasierBook, isGroupePriveBook, isOmbreBook, isRecreationBook, isRumeurBook]);
+  }, [analysis.location, analysis.locationLabel, bookGrade, isCasierBook, isCerisiersBook, isGroupePriveBook, isOmbreBook, isRecreationBook, isRumeurBook]);
 
   return (
     <figure className="w-full" data-testid="scene-illustration">
@@ -1207,6 +1275,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
               isRumeurBook={isRumeurBook}
               isCasierBook={isCasierBook}
               isRecreationBook={isRecreationBook}
+              isCerisiersBook={isCerisiersBook}
             />
 
             {/* Adults */}
@@ -1292,7 +1361,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
                   isAdult
                   hasGlasses
                   expression={analysis.mood === 'tense' ? 'concerned' : 'happy'}
-                  label={isOmbreBook ? 'Mme Martin' : 'Professeur'}
+                  label={isOmbreBook || isCerisiersBook ? 'Mme Martin' : 'Professeur'}
                 />
               )}
 
@@ -1350,6 +1419,19 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
                   label={hasLina ? 'Lina' : hasSami ? 'Sami' : 'Camarade'}
                 />
               ) : null
+            ) : isCerisiersBook ? (
+              hasMaya || hasSamy || analysis.location !== 'maison_soir' ? (
+                <CharacterFigure
+                  x={hasLeftAdult || hasDirector ? 186 : analysis.mood === 'sad' ? 148 : 204}
+                  y={224}
+                  shirt={hasMaya ? '#C86D51' : '#467599'}
+                  hair={hasMaya ? '#4B3224' : '#3B2B22'}
+                  hasBackpack={analysis.location === 'couloir_portemanteaux' || analysis.location === 'portail_sortie'}
+                  expression={protagonistExpression}
+                  waving={analysis.mood === 'festive' || analysis.mood === 'warm'}
+                  label={hasMaya ? 'Maya' : hasSamy ? 'Samy' : 'Camarade'}
+                />
+              ) : null
             ) : (
               <CharacterFigure
                 x={hasLeftAdult ? 184 : analysis.mood === 'sad' ? 148 : 212}
@@ -1360,6 +1442,19 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
                 expression={protagonistExpression}
                 waving={analysis.mood === 'festive' || analysis.mood === 'warm'}
                 label={hasSamy ? 'Samy' : 'Camarade'}
+              />
+            )}
+
+            {/* Second ally in CE2 Cerisiers when both Maya and Samy appear */}
+            {isCerisiersBook && hasMaya && hasSamy && !(hasLeftAdult || hasDirector) && (
+              <CharacterFigure
+                x={124}
+                y={226}
+                shirt="#467599"
+                hair="#3B2B22"
+                expression={protagonistExpression}
+                waving={analysis.mood === 'festive'}
+                label="Samy"
               />
             )}
 
@@ -1383,7 +1478,8 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
                   (isGroupePriveBook && analysis.location === 'maison_soir' && !hasChloe) ||
                   (isRumeurBook && analysis.location === 'maison_soir' && !hasNoe) ||
                   (isCasierBook && analysis.location === 'maison_soir' && !hasInes) ||
-                  (isRecreationBook && analysis.location === 'maison_soir' && !hasLina && !hasSami)
+                  (isRecreationBook && analysis.location === 'maison_soir' && !hasLina && !hasSami) ||
+                  (isCerisiersBook && analysis.location === 'maison_soir' && !hasMaya && !hasSamy)
                     ? 260
                     : 278
                 }
@@ -1503,15 +1599,41 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
               />
             )}
 
+            {/* CE2 Cerisiers classmates (Théo & Clara) */}
+            {isCerisiersBook && hasTheo && (
+              <CharacterFigure
+                x={390}
+                y={224}
+                shirt="#B8533D"
+                hair="#543825"
+                facing={-1}
+                expression={analysis.mood === 'festive' || analysis.mood === 'warm' ? 'happy' : 'smirk'}
+                label="Théo"
+              />
+            )}
+
+            {isCerisiersBook && hasClara && (
+              <CharacterFigure
+                x={hasTheo ? 448 : 392}
+                y={226}
+                shirt="#845A82"
+                hair="#7A4C2C"
+                facing={-1}
+                expression={analysis.mood === 'festive' || analysis.mood === 'warm' ? 'happy' : 'smirk'}
+                label="Clara"
+              />
+            )}
+
             {/* Supportive Classmates when no crowding on the right */}
             {hasFriends &&
               !hasLea &&
               !hasSarah &&
               !(isRumeurBook && hasLucas) &&
               !(isCasierBook && hasMaxime) &&
-              !(isRecreationBook && hasNathan) && (
+              !(isRecreationBook && hasNathan) &&
+              !(isCerisiersBook && hasClara) && (
                 <CharacterFigure
-                  x={hasHugo || hasEnzo || hasLeo ? 340 : 382}
+                  x={hasHugo || hasEnzo || hasLeo || hasTheo ? 340 : 382}
                   y={226}
                   shirt="#4D8A6B"
                   hair="#2F2623"
@@ -1547,7 +1669,7 @@ export const SceneIllustration: React.FC<SceneIllustrationProps> = ({
         <span className="truncate font-medium">{captionLocation}</span>
         <span className="shrink-0 tabular-nums text-[#786F63]">
           {bookTitle}
-          {isOmbreBook || isRumeurBook || isCasierBook || isRecreationBook
+          {isOmbreBook || isRumeurBook || isCasierBook || isRecreationBook || isCerisiersBook
             ? ` · Jour ${analysis.dayNumber}`
             : ` · ${bookGrade}`}
         </span>

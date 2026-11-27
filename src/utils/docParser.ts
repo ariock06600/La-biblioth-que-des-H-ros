@@ -142,11 +142,11 @@ export function parseLDVELHDocument(
     let mode: 'meta' | 'howto' | 'intro' = 'meta';
     for (let i = 0; i < headerLines.length; i++) {
       const clean = stripMarkdownBold(headerLines[i]);
-      if (/^(?:Comment\s+jouer|Introduction\s*&\s*Règles\s+du\s+jeu)/i.test(clean)) {
+      if (/^(?:Comment\s+jouer|Pour\s+jouer\s*:?)/i.test(clean)) {
         mode = 'howto';
         continue;
       }
-      if (/^(?:L['’]Histoire|Introduction|Contexte|Le\s+contexte\s*:?|Ton\s+contexte\s*:?)$/i.test(clean)) {
+      if (/^(?:L['’]Histoire|Introduction(?:\s*&\s*Règles\s+du\s+jeu)?|Contexte|Le\s+contexte\s*:?|Ton\s+contexte\s*:?)$/i.test(clean)) {
         mode = 'intro';
         continue;
       }
@@ -301,7 +301,7 @@ export function parseLDVELHDocument(
 
       // Check for "--- FIN DE L'AVENTURE --- ..." or "--- FIN DU RÉCIT — ... ---" or ending outro sentences
       const outroMatch = cleanLine.match(
-        /^-{2,}\s*FIN\s+(?:DE\s+L.+?AVENTURE|DU\s+RÉCIT)\s*[-—–]+\s*(.*?)(?:\s*-{2,})?$/i
+        /^-{2,}\s*FIN\s+(?:DE\s+L.+?(?:AVENTURE|HISTOIRE)|DU\s+RÉCIT)\s*[-—–]+\s*(.*?)(?:\s*-{2,})?$/i
       );
       if (outroMatch) {
         currentOutro = outroMatch[1].trim();
@@ -309,6 +309,7 @@ export function parseLDVELHDocument(
       }
       if (
         currentEndingMeta &&
+        currentPedagogicalMessage &&
         /^(?:C['’]est\s+la\s+fin\s+de\s+ton\s+aventure|C\s+me\s+est\s+la\s+fin\s+de\s+ton\s+aventure|BRAVO\s*!)/i.test(
           cleanLine
         )
